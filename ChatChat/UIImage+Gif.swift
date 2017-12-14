@@ -13,7 +13,7 @@ extension UIImage {
 
     public class func gifWithData(_ data: Data) -> UIImage? {
         // Create source from data
-        guard let source = CGImageSourceCreateWithData(data, nil) else {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
             print("SwiftGif: Source for the image does not exist")
             return nil
         }
@@ -62,17 +62,18 @@ extension UIImage {
         let cfProperties = CGImageSourceCopyPropertiesAtIndex(source, index, nil)
         let gifProperties: CFDictionary = unsafeBitCast(
             CFDictionaryGetValue(cfProperties,
-                unsafeAddress(of: kCGImagePropertyGIFDictionary)),
+                                 Unmanaged.passUnretained(kCGImagePropertyGIFDictionary).toOpaque()),
             to: CFDictionary.self)
 
         // Get delay time
         var delayObject: AnyObject = unsafeBitCast(
             CFDictionaryGetValue(gifProperties,
-                unsafeAddress(of: kCGImagePropertyGIFUnclampedDelayTime)),
+                                 Unmanaged.passUnretained(kCGImagePropertyGIFUnclampedDelayTime).toOpaque()),
             to: AnyObject.self)
         if delayObject.doubleValue == 0 {
             delayObject = unsafeBitCast(CFDictionaryGetValue(gifProperties,
-                unsafeAddress(of: kCGImagePropertyGIFDelayTime)), to: AnyObject.self)
+                                                             Unmanaged.passUnretained(kCGImagePropertyGIFDelayTime).toOpaque()),
+                                        to: AnyObject.self)
         }
 
         delay = delayObject as! Double
@@ -99,7 +100,7 @@ extension UIImage {
         }
 
         // Swap for modulo
-        if a < b {
+        if a! < b! {
             let c = a
             a = b
             b = c
